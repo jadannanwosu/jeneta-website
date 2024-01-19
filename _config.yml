@@ -1,11 +1,11 @@
 ### your site title here
 
-title: Your Name
-description: subtitle | affiliations | motto
+title: Jeneta Nwosu
+description: Undergraduate Student | Vanderbilt | Real.
 
-baseurl: /gradfolio #name of GitHub repository
-url: "" #custom url to be used instead of GitHub repository
-email: #
+baseurl: "" #name of GitHub repository
+url: "jadannanwosu.com" #custom url to be used instead of GitHub repository
+email: # no thanks to spam
 
 # Pagination
 paginate: 4
@@ -13,10 +13,10 @@ permalink: /blog/:year/:title/
 paginate_path: /blog/page:num/
 
 # Social media links in footer
-twitter: "#"
-linkedin: "#"
+twitter: "https://twitter.com/JenetaNwosu"
+linkedin: "https://www.linkedin.com/in/jeneta-nwosu-76300426b/"
 stackoverflow: "#"
-github: "#"
+github: "https://github.com/jadannanwosu/"
 researchgate: "#"
 orcid: "#"
 quora: "#"
