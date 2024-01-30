@@ -14,4 +14,4 @@ I am an undergraduate student at Vanderbilt pursuing a major in economics and a 
 
 Want to reach out? See below.
 
-{% include contact-form.html %}
+{% include contact_form.html %}
