@@ -39,7 +39,8 @@
 .fa-envelope
 .fa-quora
 .fa-instagram
-.fa-stack-overflow {
+.fa-stack-overflow
+.fa-bluesky {
   font-size: 25px;
 }
 
@@ -146,4 +147,8 @@
   color: #f48024;
   background: #fefefe;
   border-color: #5dd1b0;
+}
+
+.rounded-social-buttons .social-button.bluesky {
+  background: #FFFFFF;
 }
