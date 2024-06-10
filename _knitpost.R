@@ -1,7 +1,7 @@
 # compiles all .Rmd files in _R directory into .md files in _posts directory,
 # if the input file is older than the output file.
 
-# run ./knitpages.R to update all knitr files that need to be updated.
+# run ./knitpages.R to update all knitr files that need to be updated
 
 KnitPost <- function(input, outfile, base.url="/") {
   # this function is a modified version of an example here:
