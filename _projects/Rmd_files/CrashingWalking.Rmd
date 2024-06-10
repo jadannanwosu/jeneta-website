@@ -1,12 +1,41 @@
 ---
-title: "Investigating Pedestrian-Involved Fatal Crashes and Walkability (Via Walk Score)"
+title: "Pedestrian-Involved Fatal Crashes and Walk Score"
 author: "Jeneta Nwosu"
-date: "2024-06-06"
-output: html_document
+date: "2024-06-09"
+description: Using R, I try to ascertain the relationship between road safety and walkability.
+output:
+  md_document:
+    variant: gfm
+    preserve_yaml: TRUE
+knit: (function(inputFile, encoding) {
+  rmarkdown::render(inputFile, 
+  encoding = encoding, 
+  output_file=paste0(Sys.Date(), "-", sub(".Rmd", ".md",inputFile)), 
+  output_dir = "~/jeneta-website/_projects") })
+layout: post
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+base_dir <- "~/jeneta-website/" # i.e. where the jekyll blog is on the hard drive.
+base_url <- "/" # keep as is
+
+# If the document is currently being knit, do this; skip it in normal execution
+if (!is.null(knitr::current_input())){
+  
+  # Output path for figures
+  fig_path <- paste0("_projects/fig/", str_remove(knitr::current_input(), ".Rmd"), "/")
+  
+  # Set base directories
+  knitr::opts_knit$set(base.dir = base_dir, base.url = base_url)
+  
+  # Set figure directories
+  knitr::opts_chunk$set(fig.path = fig_path,
+                      cache.path = '../cache/',
+                      message=FALSE, warning=FALSE,
+                      cache = FALSE)
+}
 ```
 
 # Introduction
