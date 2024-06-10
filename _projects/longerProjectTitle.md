@@ -13,5 +13,5 @@ As someone with a personal interest in urbanism and transportation, Walk Score h
 
 All the files involved in my process are available on the project's dedicated GitHub repo [here](https://github.com/jadannanwosu/Walk-Score-FARS).
 
-{% include CrashingWalking.html %}
+{% include CrashingWalkingWeb.html %}
 
