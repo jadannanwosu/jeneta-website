@@ -1,7 +1,7 @@
 ---
 title: "Investigating Pedestrian-Involved Fatal Crashes and Walkability (Via Walk Score)"
 author: "Jeneta Nwosu"
-description: Using R, I try to ascertain the relationship between road safety and walkability.
+description: Examining link between road safety and walkability with R
 date: "2024-06-09"
 output: rmarkdown::github_document
 ---
