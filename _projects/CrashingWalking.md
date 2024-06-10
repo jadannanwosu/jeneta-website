@@ -1,8 +1,9 @@
-Investigating Pedestrian-Involved Fatal Crashes and Walkability (Via
-Walk Score)
-================
-Jeneta Nwosu
-2024-06-06
+---
+layout: post
+title: Pedestrian-Involved Fatal Crashes and Walk Score
+description: Using R, I try to ascertain the relationship between road safety and walkability.
+---
+
 
 # Introduction
 
