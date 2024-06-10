@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Another placeholder :)
-description: Don't hate me.
+title: Space for another project
+description: Placeholder until I decide on something.
 ---
 Stay tuned.
