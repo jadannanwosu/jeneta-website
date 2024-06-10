@@ -1,4 +1,5 @@
 ---
+layout: post
 title: "Investigating Pedestrian-Involved Fatal Crashes and Walkability (Via Walk Score)"
 author: "Jeneta Nwosu"
 description: Examining link between road safety and walkability with R
