@@ -1,10 +1,8 @@
 ---
 layout: post
-title: "Investigating Pedestrian-Involved Fatal Crashes and Walkability (Via Walk Score)"
+title: "Pedestrian-Involved Fatal Crashes and Walkability"
 description: Using R, I try to ascertain the relationship between road safety and walkability.
-author: "Jeneta Nwosu"
 date: "2024-06-09"
-output: html_document
 ---
 
 ```{r setup, include=FALSE}
