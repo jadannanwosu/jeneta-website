@@ -23,6 +23,8 @@ knit: (function(inputFile, encoding) {
 ---
 
 ```{r setup, include=FALSE}
+knitr::opts_knit$set(base.dir = "", base.url = "/")
+knitr::opts_chunk$set(fig.path = "_projects/figs/")
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
