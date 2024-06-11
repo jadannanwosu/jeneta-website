@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Pedestrian-Involved Fatal Crashes and Walk Score
-description: Using R, I try to ascertain the relationship between road safety and walkability.
+description: Examining the relationship between road safety and walkability using R.
 ---
 
 As someone with a personal interest in urbanism and transportation, Walk Score has been a fun tool with which to compare different U.S. cities. When I discovered that the National Highway Traffic Safety Administration maintains an annually updated database of deadly car crashes, I wanted to see whether or not it is reasonable to draw a relationship between the Walk Score index and fatal collisions involving pedestrians. I also wanted to try my hand at applying skills learned in a semester in DS 1000 at Vanderbilt. I stumbled upon a paper that performs a much more thorough (and probably more useful) examination of the same question, though I don’t believe it uses Walk Score. Refer to the following auto-generated citation if you are interested in that:
