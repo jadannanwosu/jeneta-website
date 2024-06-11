@@ -132,7 +132,7 @@ crash_and_pop %>%
   layout(title = "U.S. Cities By Fatal Pedestrian-Involved Car Accidents", xaxis = list(title = "City"), yaxis = list(title = "Number of Crashes"))
 ```
 
-{% includes first_plot.html %}
+{% include first_plot.html %}
 
 ``` r
 # Top Cities for Crashes Per 100,000 people 
