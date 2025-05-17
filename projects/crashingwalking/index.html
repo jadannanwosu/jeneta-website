@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1" name="viewport">
+        <link rel="stylesheet" href="/assets/css/main.css">
+
+        <h1 class="post-headline">Jeneta Nwosu</h1>
+        <h3 class="post-description">Economics | Vanderbilt | Real.</h3>
+
+        <div class="links scroll">
+        <a href="/">Home</a>
+        <a href="/projects/">Projects</a>
+        <a href="/blog/">Blog</a>
+</div>
+
+
+        <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Pedestrian-Involved Fatal Crashes and Walk Score | Jeneta Nwosu</title>
+<meta name="generator" content="Jekyll v4.3.2" />
+<meta property="og:title" content="Pedestrian-Involved Fatal Crashes and Walk Score" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Examining the relationship between road safety and walkability using R." />
+<meta property="og:description" content="Examining the relationship between road safety and walkability using R." />
+<link rel="canonical" href="/projects/crashingwalking/" />
+<meta property="og:url" content="/projects/crashingwalking/" />
+<meta property="og:site_name" content="Jeneta Nwosu" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-05-17T08:20:18+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Pedestrian-Involved Fatal Crashes and Walk Score" />
+<meta name="twitter:site" content="@" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2025-05-17T08:20:18+00:00","datePublished":"2025-05-17T08:20:18+00:00","description":"Examining the relationship between road safety and walkability using R.","headline":"Pedestrian-Involved Fatal Crashes and Walk Score","mainEntityOfPage":{"@type":"WebPage","@id":"/projects/crashingwalking/"},"url":"/projects/crashingwalking/"}</script>
+<!-- End Jekyll SEO tag -->
+
+
+        <!-- Generated using https://favicon.io/ -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?">
+<link rel="manifest" href=site.webmanifest">
+
+
+        <!-- MathJax -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+
+  <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: { inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+     processEscapes: true
+    }
+  });
+</script>
+
+
+        <!-- Load fontawesome here for faster loadtimes: https://stackoverflow.com/a/35880730/9523246 -->
+        <script type="text/javascript"> (function() { var css = document.createElement('link'); css.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css'; css.rel = 'stylesheet'; css.type = 'text/css'; document.getElementsByTagName('head')[0].appendChild(css); })(); </script>
+    </head>
+
+    <body>
+        <main>
+            <article>
+                <h1 class="post-headline">Pedestrian-Involved Fatal Crashes and Walk Score</h1>
+<p class="meta"><small>May 17, 2025</small></p>
+
+<p>As someone with a personal interest in urbanism and transportation, Walk Score has been a fun tool with which to compare different U.S. cities. When I discovered that the National Highway Traffic Safety Administration maintains an annually updated database of deadly car crashes, I wanted to see whether or not it is reasonable to draw a relationship between the Walk Score index and fatal collisions involving pedestrians. I also wanted to try my hand at applying skills learned in a semester in DS 1000 at Vanderbilt. I stumbled upon a paper that performs a much more thorough (and probably more useful) examination of the same question, though I don’t believe it uses Walk Score. Refer to the following auto-generated citation if you are interested in that:</p>
+
+<p>Behram Wali, Lawrence D. Frank,
+    Redefining walkability to capture safety: Investing in pedestrian, bike, and street level design features to make it safe to walk and bike,
+    Transportation Research Part A: Policy and Practice, Volume 181, 2024, 103968, ISSN 0965-8564, https://doi.org/10.1016/j.tra.2024.103968
+    (https://www.sciencedirect.com/science/article/pii/S0965856424000168)</p>
+
+<p>All the files involved in my process are available on the project’s dedicated GitHub repo <a href="https://github.com/jadannanwosu/Walk-Score-FARS" target="_blank" rel="noopener noreferrer">here</a>.</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<h2 id="why-what-and-how">Why, What, and How</h2>
+
+<p>Walkability advocates constructed <strong>Walk Score</strong>, available at
+walkscore.com, as a measurement of the quality of pedestrian-centered
+infrastructure in cities. Walk Score achieves this by integrating data
+points like walking times to desired amenities, population and
+intersection density, and the length of each city block. While Walk
+Score reflects the convenience of the built environment for walkers and
+rollers, the same factors are intertwined with implications for road
+safety. When urban planners make pedestrian-convenient city streets and
+sidewalks, this usually includes features that prevent lethal collisions
+with motor vehicles. Additionally, drivers may adjust their behavior to
+reflect increased foot traffic. Using data from the 2022 U.S. National
+Highway Traffic Safety Administration’s <strong>Fatality Analysis Reporting
+System</strong>, the relationship between the conveniences represented by Walk
+Score and fatal collisions between pedestrians and drivers can be
+measured and understood.</p>
+
+<h2 id="fatal-crashes-involving-pedestrians">Fatal Crashes Involving Pedestrians</h2>
+
+<p>Here, the <code class="language-plaintext highlighter-rouge">accident</code> csv file detailing data for all fatal car accidents
+in the U.S. was filtered to include only cases appearing within the
+<code class="language-plaintext highlighter-rouge">pbtype</code> file, which focuses on details pertaining specifically to
+accidents between pedestrians and automobiles. Both came from the 2022
+NTHSA FARS database
+(<a href="https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars" target="_blank" rel="noopener noreferrer">https://www.nhtsa.gov/research-data/fatality-analysis-reporting-system-fars</a>).
+<code class="language-plaintext highlighter-rouge">pbtype</code> was first filtered via the <code class="language-plaintext highlighter-rouge">PEDCTYPE</code> column to remove
+incidents not involving true pedestrians (i.e., cyclists).</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">require</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ped_crash</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pbtype</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">PEDCTYPE</span><span class="o">!=</span><span class="m">0</span><span class="p">)</span><span class="w">
+</span><span class="n">ped_crash_acc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">accident</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">ST_CASE</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">ped_crash</span><span class="o">$</span><span class="n">ST_CASE</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="creating-a-clean-data-frame-incorporating-walk-score-and-city-data-with-fars-data">Creating a Clean Data Frame Incorporating Walk Score and City Data with FARS data</h2>
+
+<p>The “US Cities Urban Connectivity” dataset by VivianEllis on Kaggle
+(doi.org/10.34740/kaggle/dsv/7816051) includes information on 100
+cities, all of which have populations over 200,000, and their
+convenience for publicly accessible transportation option. Its inclusion
+of Walk Score and 2022 population numbers are useful for this project.
+To merge this data with the FARS data, some cleaning and reformatting
+was necessary.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">require</span><span class="p">(</span><span class="n">usdata</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># Trimming nonrelevant info + matching records</span><span class="w">
+</span><span class="n">most_pop_cities</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">urban_connectivity</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">select</span><span class="p">(</span><span class="n">City</span><span class="p">,</span><span class="w"> </span><span class="n">State</span><span class="p">,</span><span class="w"> </span><span class="n">Population_2022_Census</span><span class="p">,</span><span class="w"> </span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="s1">'Walk Score'</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">City</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">City</span><span class="p">,</span><span class="w"> </span><span class="n">City</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Washington D.C."</span><span class="p">,</span><span class="w"> </span><span class="s2">"Washington"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">City</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">City</span><span class="p">,</span><span class="w"> </span><span class="n">City</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Boise City"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Boise"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">City</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">City</span><span class="p">,</span><span class="w"> </span><span class="n">City</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"St. Petersburg"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Saint Petersburg"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+    </span><span class="n">mutate</span><span class="p">(</span><span class="n">City</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">City</span><span class="p">,</span><span class="w"> </span><span class="n">City</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Lexington"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Lexington-Fayette"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">Place_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">Place_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"St. Petersburg, FL"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Saint Petersburg, FL"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+   </span><span class="n">mutate</span><span class="p">(</span><span class="n">Place_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">Place_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Irvine, CA"</span><span class="p">,</span><span class="w"> </span><span class="s2">"East Irvine, CA"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">Place_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">Place_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Charlotte/Mecklenburg, NC"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Charlotte, NC"</span><span class="p">))</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">Place_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">Place_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Nashville/Davidson, TN"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Nashville, TN"</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+   </span><span class="n">mutate</span><span class="p">(</span><span class="n">Place_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">Place_name</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"Lexington/Fayette, KY"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Lexington-Fayette, KY"</span><span class="p">))</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">arrange</span><span class="p">(</span><span class="o">-</span><span class="n">Population_2022_Census</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">head</span><span class="p">(</span><span class="m">102</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">rename</span><span class="p">(</span><span class="n">WalkScore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Walk Score"</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># Selecting cities appearing within both datasets</span><span class="w">
+
+</span><span class="n">ped_crash_acc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ped_crash_acc</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">((</span><span class="n">state2abbr</span><span class="p">(</span><span class="n">STATENAME</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">most_pop_cities</span><span class="o">$</span><span class="n">State</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">tolower</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">tolower</span><span class="p">(</span><span class="n">most_pop_cities</span><span class="o">$</span><span class="n">City</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">STATEAB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state2abbr</span><span class="p">(</span><span class="n">STATENAME</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">CITYNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">replace</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">,</span><span class="w"> </span><span class="n">CITYNAME</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"East Irvine"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Irvine"</span><span class="p">))</span><span class="w">
+  
+</span><span class="c1"># Counting up incidents for each city</span><span class="w">
+
+</span><span class="n">ped_crash_count</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ped_crash_acc</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">CITYNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str_to_title</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">PLACENAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">,</span><span class="w"> </span><span class="n">STATEAB</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">", "</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">STATENAME</span><span class="p">,</span><span class="w"> </span><span class="n">CITYNAME</span><span class="p">,</span><span class="w"> </span><span class="n">STATEAB</span><span class="p">,</span><span class="w"> </span><span class="n">PLACENAME</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">summarize</span><span class="p">(</span><span class="n">case_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">())</span><span class="w"> 
+  
+</span><span class="c1"># Final step to consolidate Ellis and NHTSA datasets</span><span class="w">
+
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">left_join</span><span class="p">(</span><span class="n">ped_crash_count</span><span class="p">,</span><span class="w"> </span><span class="n">most_pop_cities</span><span class="p">,</span><span class="w"> </span><span class="n">join_by</span><span class="p">(</span><span class="n">PLACENAME</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">STATEAB</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">State</span><span class="p">,</span><span class="w"> </span><span class="n">CITYNAME</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">City</span><span class="p">))</span><span class="w">
+
+</span><span class="c1"># Banishing duplicates and erroneously selected cities</span><span class="w">
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">drop_na</span><span class="p">(</span><span class="n">WalkScore</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise_each</span><span class="p">(</span><span class="n">funs</span><span class="p">(</span><span class="n">first</span><span class="p">(</span><span class="n">.</span><span class="p">[</span><span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">.</span><span class="p">)])))</span><span class="w">
+
+</span><span class="c1"># Crashes per capita </span><span class="w">
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">per_capita_crash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Population_2022_Census</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="visualizations-of-relevant-relationships">Visualizations of Relevant Relationships</h2>
+
+<p>These plots explain both the interest in investigating the relationship
+between Walk Score and pedestrian-involved fatal collisions, but also
+the rationale for accounting for population when comparing cities.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">require</span><span class="p">(</span><span class="n">plotly</span><span class="p">)</span><span class="w">
+</span><span class="c1"># Top Cities for Crashes</span><span class="w">
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">arrange</span><span class="p">(</span><span class="o">-</span><span class="n">case_count</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">head</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">plot_ly</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">reorder</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="n">case_count</span><span class="p">),</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">case_count</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'bar'</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"U.S. Cities By Fatal Pedestrian-Involved Car Accidents"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Number of Crashes"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/plot1.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Top Cities for Crashes Per 100,000 people </span><span class="w">
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">arrange</span><span class="p">(</span><span class="o">-</span><span class="n">per_capita_crash</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">head</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+   </span><span class="n">plot_ly</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">reorder</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">,</span><span class="w">  </span><span class="o">-</span><span class="n">per_capita_crash</span><span class="p">),</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">per_capita_crash</span><span class="o">*</span><span class="m">100000</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'bar'</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"U.S. Cities By Fatal Pedestrian-Involved Car Accidents, \n Per 100,000 Inhabitants"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Crashes Per 100,000 (2022 Population)"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/plot2.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Top Cities for Walk Score</span><span class="w">
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">arrange</span><span class="p">(</span><span class="o">-</span><span class="n">WalkScore</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">head</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+   </span><span class="n">plot_ly</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">reorder</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">,</span><span class="w">  </span><span class="o">-</span><span class="n">WalkScore</span><span class="p">),</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">WalkScore</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'bar'</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"10 U.S. Cities With Highest Walk Score"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Walk Score"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/plot3.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Bottom Cities for Walk Score</span><span class="w">
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">arrange</span><span class="p">(</span><span class="n">WalkScore</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">head</span><span class="p">(</span><span class="m">10</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">plot_ly</span><span class="p">(</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">reorder</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">,</span><span class="w">  </span><span class="o">-</span><span class="n">WalkScore</span><span class="p">),</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">WalkScore</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+   </span><span class="n">add_trace</span><span class="p">(</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'bar'</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"10 U.S. Cities With Lowest Walk Score \n Out of 100 With Pop. Over 200K"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Walk Score"</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/plot4.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Population vs Crashes</span><span class="w">
+</span><span class="n">scatter1</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">case_count</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">Population_2022_Census</span><span class="p">),</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">scatter1</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
+## Call:
+## lm(formula = case_count ~ log(Population_2022_Census), data = crash_and_pop)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -82.192  -7.043  -1.402   4.890  80.472 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                 -340.308     36.544  -9.312 5.33e-15 ***
+## log(Population_2022_Census)   27.728      2.788   9.944 2.42e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 18.52 on 94 degrees of freedom
+## Multiple R-squared:  0.5127, Adjusted R-squared:  0.5075 
+## F-statistic: 98.89 on 1 and 94 DF,  p-value: 2.415e-16
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">plot_ly</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">Population_2022_Census</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">case_count</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'text'</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">paste</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'scatter'</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'markers'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Population vs Fatal Pedestrian-Involved Car Accident Incidence"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Population"</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"log"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Number of Crashes"</span><span class="p">))</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">Population_2022_Census</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fitted</span><span class="p">(</span><span class="n">scatter1</span><span class="p">),</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'lines'</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'skip'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Regression Line'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/scatter1.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Population vs Walk Score</span><span class="w">
+</span><span class="n">scatter2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">WalkScore</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="n">Population_2022_Census</span><span class="p">),</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="p">)</span><span class="w">
+</span><span class="n">summary</span><span class="p">(</span><span class="n">scatter2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
+## Call:
+## lm(formula = WalkScore ~ log(Population_2022_Census), data = crash_and_pop)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -28.284 -11.885  -3.178  10.166  40.844 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)   
+## (Intercept)                  -38.209     30.298  -1.261  0.21039   
+## log(Population_2022_Census)    6.650      2.312   2.877  0.00497 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 15.35 on 94 degrees of freedom
+## Multiple R-squared:  0.08092,    Adjusted R-squared:  0.07114 
+## F-statistic: 8.276 on 1 and 94 DF,  p-value: 0.004972
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">plot_ly</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">Population_2022_Census</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">WalkScore</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'text'</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">paste</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'scatter'</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'markers'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Population vs Walk Score"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Population"</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"log"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Walk Score"</span><span class="p">))</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">Population_2022_Census</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fitted</span><span class="p">(</span><span class="n">scatter2</span><span class="p">),</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'lines'</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'skip'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Regression Line'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/scatter2.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<h2 id="regression-for-crash-incidence-and-walk-score">Regression For Crash Incidence and Walk Score</h2>
+
+<p>The method for tackling the guiding question about the relationship
+between fatal pedestrian-involved crashes and Walk Score was a simple
+linear regression to check for correlation. The linear model underwent
+1000-fold cross-validation with a 70-30 split, from which the resulting
+average RMSE was about 16.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reg_pedcrash</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">WalkScore</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="p">)</span><span class="w">
+
+</span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">plot_ly</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">WalkScore</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'text'</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">paste</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'scatter'</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'markers'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Crashes Per Capita vs Walk Score \n From 100 Cities With Pop. Over 200K"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Fatal Crashes Involving Pedestrians Divided by Population"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Walk Score"</span><span class="p">))</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fitted</span><span class="p">(</span><span class="n">reg_pedcrash</span><span class="p">),</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'lines'</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'skip'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Regression Line'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/scatter3.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># High p-value!</span><span class="w">
+
+</span><span class="n">summary</span><span class="p">(</span><span class="n">reg_pedcrash</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
+## Call:
+## lm(formula = WalkScore ~ per_capita_crash, data = crash_and_pop)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -29.999 -10.690  -4.484  11.968  38.971 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)          51.609      2.974  17.353   &lt;2e-16 ***
+## per_capita_crash -79136.841  71039.201  -1.114    0.268    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 15.91 on 94 degrees of freedom
+## Multiple R-squared:  0.01303,    Adjusted R-squared:  0.00253 
+## F-statistic: 1.241 on 1 and 94 DF,  p-value: 0.2681
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set.seed</span><span class="p">(</span><span class="m">196</span><span class="p">)</span><span class="w">
+</span><span class="n">cvResult</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">numeric</span><span class="p">(</span><span class="m">1000</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+
+  </span><span class="n">inds</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">crash_and_pop</span><span class="p">),</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="m">.7</span><span class="o">*</span><span class="n">nrow</span><span class="p">(</span><span class="n">crash_and_pop</span><span class="p">)),</span><span class="w">  </span><span class="n">replace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">)</span><span class="w"> 
+  </span><span class="n">train</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">slice</span><span class="p">(</span><span class="n">inds</span><span class="p">)</span><span class="w"> 
+
+  </span><span class="n">reg_score_CV</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">formula</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WalkScore</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> 
+               </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train</span><span class="p">)</span><span class="w">
+  
+  </span><span class="n">test</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">slice</span><span class="p">(</span><span class="o">-</span><span class="n">inds</span><span class="p">)</span><span class="w">
+  
+  
+  </span><span class="n">test</span><span class="o">$</span><span class="n">preds</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">reg_score_CV</span><span class="p">,</span><span class="w"> </span><span class="n">newdata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test</span><span class="p">)</span><span class="w">
+  
+  </span><span class="n">e</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">test</span><span class="o">$</span><span class="n">WalkScore</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">test</span><span class="o">$</span><span class="n">preds</span><span class="w">
+  </span><span class="n">se</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">e</span><span class="o">^</span><span class="m">2</span><span class="w">
+  </span><span class="n">mse</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">se</span><span class="p">)</span><span class="w">
+  </span><span class="n">rmse</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span><span class="w">
+  </span><span class="n">cvResult</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rmse</span><span class="w">
+  
+
+</span><span class="p">}</span><span class="w">
+
+</span><span class="n">mean</span><span class="p">(</span><span class="n">cvResult</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## [1] 16.09736
+</code></pre></div></div>
+
+<h2 id="evaluating-alternative-subset-of-data">Evaluating Alternative Subset of Data</h2>
+
+<p>The average RMSE after cross-validation was too high to be confident in
+pedestrian-involved fatal crashes being a good predictor of walkability
+as measured by Walk Score, especially with a relatively high p-value of
+0.268. Earlier, all incidents coded in FARS as being pedestrian-involved
+were included. To test whether selecting specific scenarios would
+eliminate noise and make the relationship clearer, below are the results
+when restricted to only the accidents that are most obviously relevant
+to said relationship.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Selecting common pedestrian situations. Chose "walking in the road against traffic" but not "with traffic" due to the former usually being the legal protocol when there are no sidewalks. Refer to FARS/CRSS Pedestrian Bicyclist Crash Typing Manual for PEDCTYPE code meanings.</span><span class="w">
+
+</span><span class="n">ped_crash_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">pbtype</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="w"> </span><span class="m">341</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">342</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">430</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">440</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">510</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">520</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">590</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">710</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">720</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">770</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">781</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">782</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">791</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">792</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">795</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">794</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">PEDCTYPE</span><span class="o">==</span><span class="m">799</span><span class="w"> </span><span class="p">)</span><span class="w">
+</span><span class="n">ped_crash_acc_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">accident</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">(</span><span class="n">ST_CASE</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">ped_crash_small</span><span class="o">$</span><span class="n">ST_CASE</span><span class="p">)</span><span class="w">
+
+</span><span class="n">ped_crash_acc_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ped_crash_acc_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">filter</span><span class="p">((</span><span class="n">state2abbr</span><span class="p">(</span><span class="n">STATENAME</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">most_pop_cities</span><span class="o">$</span><span class="n">State</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">tolower</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="n">tolower</span><span class="p">(</span><span class="n">most_pop_cities</span><span class="o">$</span><span class="n">City</span><span class="p">)))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">STATEAB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">state2abbr</span><span class="p">(</span><span class="n">STATENAME</span><span class="p">))</span><span class="w">
+
+</span><span class="n">ped_crash_count_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ped_crash_acc_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">CITYNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">str_to_title</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">PLACENAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">paste</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">,</span><span class="w"> </span><span class="n">STATEAB</span><span class="p">,</span><span class="w"> </span><span class="n">sep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">", "</span><span class="p">))</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">STATENAME</span><span class="p">,</span><span class="w"> </span><span class="n">CITYNAME</span><span class="p">,</span><span class="w"> </span><span class="n">STATEAB</span><span class="p">,</span><span class="w"> </span><span class="n">PLACENAME</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">summarize</span><span class="p">(</span><span class="n">case_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">())</span><span class="w"> 
+
+</span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">left_join</span><span class="p">(</span><span class="n">ped_crash_count_small</span><span class="p">,</span><span class="w"> </span><span class="n">most_pop_cities</span><span class="p">,</span><span class="w"> </span><span class="n">join_by</span><span class="p">(</span><span class="n">PLACENAME</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Place_name</span><span class="p">,</span><span class="w"> </span><span class="n">STATEAB</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">State</span><span class="p">,</span><span class="w"> </span><span class="n">CITYNAME</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">City</span><span class="p">))</span><span class="w">
+
+</span><span class="c1"># Banishing duplicates and erroneously selected cities</span><span class="w">
+</span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">drop_na</span><span class="p">(</span><span class="n">WalkScore</span><span class="p">)</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">group_by</span><span class="p">(</span><span class="n">CITYNAME</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> 
+  </span><span class="n">summarise_each</span><span class="p">(</span><span class="n">funs</span><span class="p">(</span><span class="n">first</span><span class="p">(</span><span class="n">.</span><span class="p">[</span><span class="o">!</span><span class="nf">is.na</span><span class="p">(</span><span class="n">.</span><span class="p">)])))</span><span class="w">
+
+</span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">mutate</span><span class="p">(</span><span class="n">per_capita_crash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">case_count</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Population_2022_Census</span><span class="p">)</span><span class="w">
+
+</span><span class="c1"># MUCH smaller sample size - will this cause problems? Let's see.</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="re-running-regression-on-smaller-subset">Re-running Regression on Smaller Subset</h2>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">reg_pedcrash_small</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">WalkScore</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> </span><span class="n">crash_and_pop_small</span><span class="p">)</span><span class="w">
+
+</span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">plot_ly</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">WalkScore</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'text'</span><span class="p">,</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">paste</span><span class="p">(</span><span class="n">PLACENAME</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'scatter'</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'markers'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"City"</span><span class="p">)</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">layout</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Crashes Per Capita vs Walk Score \n Subsetted from 100 Cities With Pop. Over 200K"</span><span class="p">,</span><span class="w"> </span><span class="n">xaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Fatal Crashes Involving Pedestrians (selected PEDCTYPE codes) Divided by Population"</span><span class="p">),</span><span class="w"> </span><span class="n">yaxis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="n">title</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Walk Score"</span><span class="p">))</span><span class="o">%&gt;%</span><span class="w">
+  </span><span class="n">add_trace</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">~</span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fitted</span><span class="p">(</span><span class="n">reg_pedcrash_small</span><span class="p">),</span><span class="w"> </span><span class="n">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'lines'</span><span class="p">,</span><span class="w"> </span><span class="n">hoverinfo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'skip'</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Regression Line'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><a href="https://jadannanwosu.github.io/Walk-Score-FARS/scatter4.html" target="_blank" rel="noopener noreferrer">Click here to see the plot generated by this code.</a></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">summary</span><span class="p">(</span><span class="n">reg_pedcrash_small</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## 
+## Call:
+## lm(formula = WalkScore ~ per_capita_crash, data = crash_and_pop_small)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -22.651 -12.238  -3.987  13.222  41.213 
+## 
+## Coefficients:
+##                   Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)      4.606e+01  3.744e+00  12.301   &lt;2e-16 ***
+## per_capita_crash 7.144e+05  5.980e+05   1.195    0.236    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 15.73 on 71 degrees of freedom
+## Multiple R-squared:  0.01971,    Adjusted R-squared:  0.005901 
+## F-statistic: 1.427 on 1 and 71 DF,  p-value: 0.2362
+</code></pre></div></div>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Only a tiny change in p-value...</span><span class="w">
+
+</span><span class="n">set.seed</span><span class="p">(</span><span class="m">196</span><span class="p">)</span><span class="w">
+</span><span class="n">cvResult2</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">numeric</span><span class="p">(</span><span class="m">1000</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">1000</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+
+  </span><span class="n">inds</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">sample</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">nrow</span><span class="p">(</span><span class="n">crash_and_pop_small</span><span class="p">),</span><span class="w"> </span><span class="n">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">round</span><span class="p">(</span><span class="m">.7</span><span class="o">*</span><span class="n">nrow</span><span class="p">(</span><span class="n">crash_and_pop_small</span><span class="p">)),</span><span class="w">  </span><span class="n">replace</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">F</span><span class="p">)</span><span class="w"> 
+  </span><span class="n">train</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">slice</span><span class="p">(</span><span class="n">inds</span><span class="p">)</span><span class="w"> 
+
+  </span><span class="n">reg_score_CV</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">lm</span><span class="p">(</span><span class="n">formula</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">WalkScore</span><span class="w"> </span><span class="o">~</span><span class="w"> </span><span class="n">per_capita_crash</span><span class="p">,</span><span class="w"> 
+               </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">train</span><span class="p">)</span><span class="w">
+  
+  </span><span class="n">test</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">crash_and_pop_small</span><span class="w"> </span><span class="o">%&gt;%</span><span class="w"> </span><span class="n">slice</span><span class="p">(</span><span class="o">-</span><span class="n">inds</span><span class="p">)</span><span class="w">
+  
+  
+  </span><span class="n">test</span><span class="o">$</span><span class="n">preds</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">predict</span><span class="p">(</span><span class="n">reg_score_CV</span><span class="p">,</span><span class="w"> </span><span class="n">newdata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">test</span><span class="p">)</span><span class="w">
+  
+  </span><span class="n">e</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">test</span><span class="o">$</span><span class="n">WalkScore</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">test</span><span class="o">$</span><span class="n">preds</span><span class="w">
+  </span><span class="n">se</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">e</span><span class="o">^</span><span class="m">2</span><span class="w">
+  </span><span class="n">mse</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">mean</span><span class="p">(</span><span class="n">se</span><span class="p">)</span><span class="w">
+  </span><span class="n">rmse</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="n">mse</span><span class="p">)</span><span class="w">
+  </span><span class="n">cvResult2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">rmse</span><span class="w">
+  
+
+</span><span class="p">}</span><span class="w">
+
+</span><span class="n">mean</span><span class="p">(</span><span class="n">cvResult2</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>## [1] 16.08465
+</code></pre></div></div>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Regression analysis did not reveal a statistically significant
+relationship between fatal pedestrian-involved crash incidence and Walk
+Score. Predictions made with a simple linear model for these two
+variables had considerable error. Pruning cases for relevance did not
+seem to have any effect on this error or the statistical significance of
+the relationship. The inconclusive finding may be due to the fact that
+this work included only a narrow range of cities. Additionally, perhaps
+Walk Score, intended for use by prospective tenants and homeowners to
+choose where to live, is not the best performing measure for walkability
+in the context of road safety. More work would be needed for a
+definitive answer to the question driving this project.</p>
+
+
+<!-- Comments only for posts -->
+
+
+            </article>
+        </main>
+
+        <footer>
+          <p class="copy">
+            <small> © Jeneta Nwosu 2025
+                    | Powered by Jekyll and
+                    <a target="_blank" href="https://github.com/jitinnair1/gradfolio/" rel="noopener noreferrer">Gradfolio</a>.
+                    Last updated on 17 May 2025
+            </small>
+          </p>
+
+        <div class="rounded-social-buttons">
+<a title="" class="social-button linkedin" href="https://www.linkedin.com/in/jeneta-nwosu-76300426b/" itemprop="sameAs" target="_blank" rel="noopener noreferrer">
+<i class="fa-brands fa-linkedin"></i>
+</a><a title="" class="social-button github" href="https://github.com/jadannanwosu/" itemprop="sameAs" target="_blank" rel="noopener noreferrer">
+<i class="fa-brands fa-github"></i>
+</a><a title="" class="social-button twitter" href="https://twitter.com/JenetaNwosu" itemprop="sameAs" target="_blank" rel="noopener noreferrer">
+<i class="fa-brands fa-twitter"></i>
+</a><a title="" class="social-button bluesky" itemprop="sameAs" href="https://bsky.app/profile/jadannanwosu.bsky.social" target="_blank" rel="noopener noreferrer">
+<i class="fa-brands fa-bluesky"></i>
+</a>
+</div>
+
+
+        </footer>
+
+        <!-- Google Analytics Tracking code -->
+<script src="https://cdn.jsdelivr.net/npm/ga-lite@1/dist/ga-lite.min.js" async></script>
+<script>
+var galite = galite || {};
+galite.UA = '';
+</script>
+
+    </body>
+
+</html>
